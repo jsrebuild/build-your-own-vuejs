@@ -10,8 +10,8 @@ We'll focus on Vuejs 2.0.
 
 Table of Contents
 
-+ Chapter1: Vuejs Overview
-+ Chapter2: Reactive system
++ [Chapter1: Vuejs Overview](https://github.com/jsrebuild/build-your-own-vuejs/blob/master/book/chapter1.md)
++ [Chapter2: Reactivity system](https://github.com/jsrebuild/build-your-own-vuejs/blob/master/book/chapter2.md)
 + Chapter3: Instance lifecycle
 + Chapter4: Utility
 + Chapter5: Vritual DOM basics
