@@ -1,0 +1,25 @@
+{
+  "name": "build-your-own-vuejs",
+  "version": "1.0.0",
+  "description": "Build Vuejs from scratch to learn how it works ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsrebuild/build-your-own-vuejs.git"
+  },
+  "keywords": [
+    "vuejs"
+  ],
+  "author": "Muxi FE",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jsrebuild/build-your-own-vuejs/issues"
+  },
+  "homepage": "https://github.com/jsrebuild/build-your-own-vuejs#readme",
+  "dependencies": {
+    "rollup": "^0.36.4"
+  }
+}
