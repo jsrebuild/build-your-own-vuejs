@@ -27,14 +27,21 @@ Vue use `Object.defineProperty` to make data object's poperty reactive. Along wi
 
 Virtual DOM is the tree represatation of the actual DOM tree that lives in the memory as JavaScript Objects. 
 
-When data changes, 
+When data changes, vue will render a brand new vdom tree, and keep the old one. Vdom diff two trees and patch the change into the actual DOM tree.
+
+Vue use [snabbdom](https://github.com/snabbdom/snabbdom) as the base of its vritual DOM implementation. And modify a bit to make it work with Vue's other compoenent.
 
 #### Compiler
 
-> We will not cover the implementaion detail of the Compiler in this book. The job of compiler is to compile template into render functions(ASTs). Since we can use build tools to complie vue template into render functions in build time, Compiler is not a part of vue runtime. And we can even write render functions directly, so Compiler is not an essential part to understand vue internals.
+The job of compiler is to compile template into render functions(ASTs). It parses HTML along with Vue directives (Vue directives are just plain HTML attribute) and other entities into a tree. It also detects the maximum static sub trees (sub trees with no dynamic bindings) and hoists them out of the render. The HTML parser Vue uses is originally written by [John Resig](http://ejohn.org).
+
+> We will not cover the implementaion detail of the Compiler in this book. Since we can use build tools to complie vue template into render functions in build time, Compiler is not a part of vue runtime. And we can even write render functions directly, so Compiler is not an essential part to understand vue internals.
 
 
 ### Set up development environment
+
+Before we can start building our own Vue.js, we need to set up a few things. Including module bundler and testing tools, since we will use a test-driven workflow.
+
 
 #### Set up Rollup for module bundling
 
@@ -52,6 +59,8 @@ export default {
 ```
 
 #### Set up Karma and Jasmine for testing
+
+
 
 #### Directory structure
 

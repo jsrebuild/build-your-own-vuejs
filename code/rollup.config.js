@@ -1,6 +1,6 @@
 export default {
   entry: 'src/instance/index.js',
-  format: 'umd',
+  format: 'iife',
   moduleName: 'Vue',
   dest: 'dist/vue.js' // equivalent to --output
 };
