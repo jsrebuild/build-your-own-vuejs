@@ -54,7 +54,6 @@ export function defineReactive (obj, key, val) {
     },
     set: function reactiveSetter (newVal) {
       var value =  val
-      /* eslint-disable no-self-compare */
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }

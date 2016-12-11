@@ -103,6 +103,7 @@ Watcher.prototype.addDep = function(dep) {
 };
 
 Watcher.prototype.update = function() {
+  console.log("update!!");
   this.run();
 };
 
@@ -168,16 +169,11 @@ function Observer(value) {
 Observer.prototype.walk = function(obj) {
   var keys = Object.keys(obj);
   for (var i = 0; i < keys.length; i++) {
-    if (typeof obj[keys[i]] == "object") {
-      this.walk(obj[keys[i]]);
-    }else {
       defineReactive(obj, keys[i], obj[keys[i]]);
-    }
   }
 };
 
 function observe (value){
-  console.log(value);
   if (!isObject(value)) {
     return
   }
@@ -198,7 +194,6 @@ function defineReactive (obj, key, val) {
     configurable: true,
     get: function reactiveGetter () {
       var value = val;
-      console.log("ff");
       if (Dep.target) {
         dep.depend();
         if (childOb) {
@@ -272,7 +267,7 @@ function lifecycleMixin(Vue) {
   Vue.prototype._mount = function(el) {
   	var vm = this;
     vm._watcher = new Watcher(vm, function(){
-      console.log(vm.a.b, "update!!!");
+      console.log(vm.a, "update!!!");
     }, noop);
   };
   Vue.prototype.$destroy = function() {

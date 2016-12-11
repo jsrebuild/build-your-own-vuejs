@@ -9,7 +9,7 @@ export function lifecycleMixin(Vue) {
   Vue.prototype._mount = function(el) {
   	var vm = this
     vm._watcher = new Watcher(vm, function(){
-      console.log(vm.a.b, "update!!!")
+      console.log(vm.a, "update!!!")
     }, noop)
   }
   Vue.prototype.$destroy = function() {
