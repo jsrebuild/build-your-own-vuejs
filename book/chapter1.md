@@ -42,6 +42,8 @@ The job of compiler is to compile template into render functions(ASTs). It parse
 
 Before we can start building our own Vue.js, we need to set up a few things. Including module bundler and testing tools, since we will use a test-driven workflow.
 
+Since this is a JavaScript project, and we'gonna use some fancy tools, the first thing to do is run `npm init` and set up some infomation about this project. 
+
 
 #### Set up Rollup for module bundling
 
@@ -57,10 +59,37 @@ export default {
   dest: 'dist/vue.js' 
 };
 ```
+And don't forget to run `npm install rollup rollup-watch --save-dev`.
 
 #### Set up Karma and Jasmine for testing
 
+Testing will require quite a few packages, run:
 
+```
+npm install karma jasmine karma-jasmine karma-chrome-launcher
+ karma-rollup-plugin --save-dev
+```
+
+Under root directory, touch `karma.conf.js`:
+
+```
+module.exports = function(config) {
+  config.set({
+    frameworks: ['jasmine'],
+    files: [
+      './test/**/*.js'
+    ],
+    browsers: ['Chrome'],
+    preprocessors: {
+     './test/**/*.js': ['rollup']
+    },
+    rollupPreprocessor: {
+      format: 'iife',
+      sourceMap: 'inline'
+    }
+  })
+}
+```
 
 #### Directory structure
 
@@ -81,14 +110,117 @@ export default {
 
 ### Bootstrapping
 
-set up basic entry, write a simple test
+We'll add some npm script for convinice. 
 
-`npm run watch`
+*package.json*
 
-`npm run test`
+```
+"scripts": {
+   "build": "rollup -c",
+   "watch": "rollup -c -w",
+   "test": "karma start"
+}
+```
 
-//img of test OK
+To bootstrap our own Vuejs, let's write our first test case.
 
-yeah!
+*test/options/options.spec.js*
+
+```
+import Vue from "../src/instance/index";
+
+describe('Proxy test', function() {
+  it('should proxy vm._data.a = vm.a', function() {
+  	var vm = new Vue({
+  		data:{
+  			a:2
+  		}
+  	})
+    expect(vm.a).toEqual(2);
+  });
+});
+```
+
+This test case tests wheather props on vm's data like `vm._data.a` are proxied to vm itself, like `vm.a`. This is one of Vue's litte tricks.
+
+So we can write our first line of real code now, in 
+
+*src/instance/index.js*
+
+```
+import { initMixin } from './init'
+
+function Vue (options) {
+  this._init(options)
+}
+
+initMixin(Vue)
+
+export default Vue
+```
+This is nothing exciting, just Vue construtor calling `_init`. So let's find out what `initMixin` do:
 
 
+*src/instance/init.js*
+
+```
+import { initState } from './state'
+
+export function initMixin (Vue) {
+  Vue.prototype._init = function (options) {
+  	var vm = this
+  	vm.$options = options
+  	initState(vm)
+  }
+}
+```
+
+The instace method of Vue Class are injected in a mixin parttern. We'll find this mixin parttern quite common. Mixin is just a function that takes a construtor, add method to its prototype, and return the construtor.
+
+So initMixin add `_init` method to `Vue.prototype`. And this method calls `initState` from `state.js`:
+
+*src/instance/state.js*
+
+```
+
+export function initState(vm) {
+  initData(vm)
+}
+
+function initData(vm) {
+  var data = vm.$options.data
+  vm._data = data
+  // proxy data on instance
+  var keys = Object.keys(data)
+
+  var i = keys.length
+  while (i--) {
+    proxy(vm, keys[i])
+  }
+}
+
+function proxy(vm, key) {
+    Object.defineProperty(vm, key, {
+      configurable: true,
+      enumerable: true,
+      get: function proxyGetter() {
+        return vm._data[key]
+      },
+      set: function proxySetter(val) {
+        vm._data[key] = val
+      }
+    })
+}
+```
+
+Finally, we got to the place where proxy takes place. `initState` calls `initData`, and `initData` loops all keys of `vm._data`, calls proxy on each value.
+
+`proxy` define a property using the same key on vm, and this property has getter and setter, which manipulate `vm._data` for get/set.
+
+So that's how `vm.a` is proxied to `vm._data.a`.
+
+Run `npm run build` and `npm run test`. You should see something like this:
+
+![success](http://cdn4.snapgram.co/images/2016/12/11/ScreenShot2016-12-12at2.02.17AM.png)
+
+Bravo! You successfully bootstrapped your own Vuejs! Keep working!
