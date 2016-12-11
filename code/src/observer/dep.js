@@ -21,7 +21,7 @@ Dep.prototype.depend = function() {
 
 Dep.prototype.notify = function() {
   var subs = this.subs.slice()
-  for (let i = 0, l = subs.length; i < l; i++) {
+  for (var i = 0, l = subs.length; i < l; i++) {
     subs[i].update()
   }
 }

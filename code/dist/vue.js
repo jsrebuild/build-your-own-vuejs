@@ -37,7 +37,7 @@ Dep.prototype.depend = function() {
 
 Dep.prototype.notify = function() {
   var subs = this.subs.slice();
-  for (let i = 0, l = subs.length; i < l; i++) {
+  for (var i = 0, l = subs.length; i < l; i++) {
     subs[i].update();
   }
 };
@@ -77,7 +77,7 @@ function Watcher(vm, expOrFn, cb, options) {
 
 Watcher.prototype.get = function() {
   pushTarget(this);
-  const value = this.getter.call(this.vm, this.vm);
+  var value = this.getter.call(this.vm, this.vm);
     // "touch" every property so they are all tracked as
     // dependencies for deep watching
     // if (this.deep) {
@@ -92,7 +92,7 @@ Watcher.prototype.get = function() {
  * Add a dependency to this directive.
  */
 Watcher.prototype.addDep = function(dep) {
-  const id = dep.id;
+  var id = dep.id;
   if (!this.newDepIds.has(id)) {
     this.newDepIds.add(id);
     this.newDeps.push(dep);
@@ -117,14 +117,14 @@ Watcher.prototype.run = function() {
  * Clean up for dependency collection.
  */
 Watcher.prototype.cleanupDeps = function() {
-  let i = this.deps.length;
+  var i = this.deps.length;
   while (i--) {
-    const dep = this.deps[i];
+    var dep = this.deps[i];
     if (!this.newDepIds.has(dep.id)) {
       dep.removeSub(this);
     }
   }
-  let tmp = this.depIds;
+  var tmp = this.depIds;
   this.depIds = this.newDepIds;
   this.newDepIds = tmp;
   this.newDepIds.clear();
@@ -135,7 +135,7 @@ Watcher.prototype.cleanupDeps = function() {
 };
 
 function isReserved (str) {
-  const c = (str + '').charCodeAt(0);
+  var c = (str + '').charCodeAt(0);
   return c === 0x24 || c === 0x5F
 }
 
@@ -166,17 +166,22 @@ function Observer(value) {
 }
 
 Observer.prototype.walk = function(obj) {
-  let keys = Object.keys(obj);
-  for (let i = 0; i < keys.length; i++) {
-    defineReactive(obj, keys[i], obj[keys[i]]);
+  var keys = Object.keys(obj);
+  for (var i = 0; i < keys.length; i++) {
+    if (typeof obj[keys[i]] == "object") {
+      this.walk(obj[keys[i]]);
+    }else {
+      defineReactive(obj, keys[i], obj[keys[i]]);
+    }
   }
 };
 
 function observe (value){
+  console.log(value);
   if (!isObject(value)) {
     return
   }
-  let ob;
+  var ob;
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__;
   } else {
@@ -187,12 +192,13 @@ function observe (value){
 
 function defineReactive (obj, key, val) {
   var dep = new Dep();
-  let childOb = observe(val);
+  var childOb = observe(val);
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
       var value = val;
+      console.log("ff");
       if (Dep.target) {
         dep.depend();
         if (childOb) {
@@ -232,7 +238,7 @@ function initData(vm) {
   // proxy data on instance
   var keys = Object.keys(data);
 
-  let i = keys.length;
+  var i = keys.length;
   while (i--) {
     proxy(vm, keys[i]);
   }
@@ -265,8 +271,8 @@ function initLifecycle(vm) {
 function lifecycleMixin(Vue) {
   Vue.prototype._mount = function(el) {
   	var vm = this;
-    vm._watcher = new Watcher(vm, () => {
-      console.log(vm.a + vm.b, "update!!!");
+    vm._watcher = new Watcher(vm, function(){
+      console.log(vm.a.b, "update!!!");
     }, noop);
   };
   Vue.prototype.$destroy = function() {

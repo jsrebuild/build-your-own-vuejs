@@ -14,9 +14,9 @@ export function Observer(value) {
 }
 
 Observer.prototype.walk = function(obj) {
-  let keys = Object.keys(obj)
-  for (let i = 0; i < keys.length; i++) {
-    defineReactive(obj, keys[i], obj[keys[i]])
+  var keys = Object.keys(obj)
+  for (var i = 0; i < keys.length; i++) {
+      defineReactive(obj, keys[i], obj[keys[i]])
   }
 }
 
@@ -24,7 +24,7 @@ export function observe (value){
   if (!isObject(value)) {
     return
   }
-  let ob
+  var ob
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
   } else {
@@ -35,7 +35,7 @@ export function observe (value){
 
 export function defineReactive (obj, key, val) {
   var dep = new Dep()
-  let childOb = observe(val)
+  var childOb = observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,

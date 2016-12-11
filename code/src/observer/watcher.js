@@ -26,7 +26,7 @@ export default function Watcher(vm, expOrFn, cb, options) {
 
 Watcher.prototype.get = function() {
   pushTarget(this)
-  const value = this.getter.call(this.vm, this.vm)
+  var value = this.getter.call(this.vm, this.vm)
     // "touch" every property so they are all tracked as
     // dependencies for deep watching
     // if (this.deep) {
@@ -41,7 +41,7 @@ Watcher.prototype.get = function() {
  * Add a dependency to this directive.
  */
 Watcher.prototype.addDep = function(dep) {
-  const id = dep.id
+  var id = dep.id
   if (!this.newDepIds.has(id)) {
     this.newDepIds.add(id)
     this.newDeps.push(dep)
@@ -66,14 +66,14 @@ Watcher.prototype.run = function() {
  * Clean up for dependency collection.
  */
 Watcher.prototype.cleanupDeps = function() {
-  let i = this.deps.length
+  var i = this.deps.length
   while (i--) {
-    const dep = this.deps[i]
+    var dep = this.deps[i]
     if (!this.newDepIds.has(dep.id)) {
       dep.removeSub(this)
     }
   }
-  let tmp = this.depIds
+  var tmp = this.depIds
   this.depIds = this.newDepIds
   this.newDepIds = tmp
   this.newDepIds.clear()

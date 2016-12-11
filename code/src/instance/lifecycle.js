@@ -8,8 +8,8 @@ export function initLifecycle(vm) {
 export function lifecycleMixin(Vue) {
   Vue.prototype._mount = function(el) {
   	var vm = this
-    vm._watcher = new Watcher(vm, () => {
-      console.log(vm.a + vm.b, "update!!!")
+    vm._watcher = new Watcher(vm, function(){
+      console.log(vm.a.b, "update!!!")
     }, noop)
   }
   Vue.prototype.$destroy = function() {

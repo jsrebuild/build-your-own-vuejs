@@ -24,7 +24,7 @@ function initData(vm) {
   // proxy data on instance
   var keys = Object.keys(data)
 
-  let i = keys.length
+  var i = keys.length
   while (i--) {
     proxy(vm, keys[i])
   }
