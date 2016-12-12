@@ -1,53 +1,55 @@
 ## Chapter1: Vuejs Overview
 
-Vuejs is a simple yet powerful MVVM library. It helps us to build modern user interface for the web.
+Vuejs is a simple yet powerful MVVM library. It helps us to build a modern user interface for the web.
 
-**TODO: more on how awesome vue is, maybe some history of vue. And the purpose of writing this book.**
+By the time of writing, Vuejs has 36,312 stars on Github. And 230,250 monthly downloads on npm. Vuejs 2.0 brings in a lightweight virtual DOM implementation for render layer. This unlock more possibilities like server-side rendering and native component rendering.
+
+Vuejs claims to be a progressive JavaScript framework. Though the core library of Vuejs is quite small. Vuejs has many accompanying tools & supporting libraries. So you can build large-scale application using the Vuejs ecosystem.
+
 
 ### Components of Vuejs internals
 
-Vue internals falls into serval parts:
+Let's get acquaintance with the core components of Vuejs internals. Vue internals falls into serval parts:
 
 ![Vue internal](https://occc3ev3l.qnssl.com/Vue%20source%20overview.png)
 
-**TODO: change reactive to reactivity.**
 
 #### Instance lifecycle
 
-A new Vue instance will go through several phases. Such as observe data, init events, complie template, and render. And you can register  lifecycle hooks that will be called in specific phase.
+A new Vue instance will go through several phases. Such as observing data, initializing events, compiling the template, and render. And you can register  lifecycle hooks that will be called in the specific phase.
 
 #### Reactivity system
 
 The so called *reactivity system* is where vue's data-view binding magic comes from. When you set vue instance's data, the view updated accordingly, and vice versa. 
 
-Vue use `Object.defineProperty` to make data object's poperty reactive. Along with the famous *Observer Pattern* to link data change and view render together.
+Vue use `Object.defineProperty` to make data object's property reactive. Along with the famous *Observer Pattern* to link data change and view render together.
 
 
 #### Virtual DOM
 
-Virtual DOM is the tree represatation of the actual DOM tree that lives in the memory as JavaScript Objects. 
+Virtual DOM is the tree representation of the actual DOM tree that lives in the memory as JavaScript Objects. 
 
-When data changes, vue will render a brand new vdom tree, and keep the old one. Vdom diff two trees and patch the change into the actual DOM tree.
+When data changes, vue will render a brand new virtual DOM tree, and keep the old one. The virtual DOM module diff two trees and patch the change into the actual DOM tree.
 
-Vue use [snabbdom](https://github.com/snabbdom/snabbdom) as the base of its vritual DOM implementation. And modify a bit to make it work with Vue's other compoenent.
+Vue use [snabbdom](https://github.com/snabbdom/snabbdom) as the base of its virtual DOM implementation. And modify a bit to make it work with Vue's other component.
 
 #### Compiler
 
-The job of compiler is to compile template into render functions(ASTs). It parses HTML along with Vue directives (Vue directives are just plain HTML attribute) and other entities into a tree. It also detects the maximum static sub trees (sub trees with no dynamic bindings) and hoists them out of the render. The HTML parser Vue uses is originally written by [John Resig](http://ejohn.org).
+The job of the compiler is to compile template into render functions(ASTs). It parses HTML along with Vue directives (Vue directives are just plain HTML attribute) and other entities into a tree. It also detects the maximum static sub trees (sub trees with no dynamic bindings) and hoists them out of the render. The HTML parser Vue uses is originally written by [John Resig](http://ejohn.org).
 
-> We will not cover the implementaion detail of the Compiler in this book. Since we can use build tools to complie vue template into render functions in build time, Compiler is not a part of vue runtime. And we can even write render functions directly, so Compiler is not an essential part to understand vue internals.
+> We will not cover the implementation detail of the Compiler in this book. Since we can use build tools to compile vue template into render functions in build time, Compiler is not a part of vue runtime. And we can even write render functions directly, so Compiler is not an essential part to understand vue internals.
 
 
 ### Set up development environment
 
 Before we can start building our own Vue.js, we need to set up a few things. Including module bundler and testing tools, since we will use a test-driven workflow.
 
-Since this is a JavaScript project, and we'gonna use some fancy tools, the first thing to do is run `npm init` and set up some infomation about this project. 
+Since this is a JavaScript project, and we'gonna use some fancy tools, the first thing to do is run `npm init` and set up some information about this project. 
 
 
 #### Set up Rollup for module bundling
 
-We will use Rollup for module bundling. [Rollup](http://rollupjs.org) is a JavaScript module bundler. It allows you to write your application or library as a set of modules – using modern ES2015 import/export syntax. And vue use Rollup for module bundling too.
+We will use Rollup for module bundling. [Rollup](http://rollupjs.org) is a JavaScript module bundler. It allows you to write your application or library as a set of modules – using modern ES2015 import/export syntax. And Vuejs use Rollup for module bundling too.
 
 We gotta write a configuration for Rollup to make it work. Under root directory, touch `rollup.conf.js`:
 
@@ -110,7 +112,7 @@ module.exports = function(config) {
 
 ### Bootstrapping
 
-We'll add some npm script for convinice. 
+We'll add some npm script for convenience. 
 
 *package.json*
 
@@ -141,7 +143,7 @@ describe('Proxy test', function() {
 });
 ```
 
-This test case tests wheather props on vm's data like `vm._data.a` are proxied to vm itself, like `vm.a`. This is one of Vue's litte tricks.
+This test case tests whether props on vm's data like `vm._data.a` are proxied to vm itself, like `vm.a`. This is one of Vue's little tricks.
 
 So we can write our first line of real code now, in 
 
@@ -158,7 +160,7 @@ initMixin(Vue)
 
 export default Vue
 ```
-This is nothing exciting, just Vue construtor calling `_init`. So let's find out what `initMixin` do:
+This is nothing exciting, just Vue constructor calling `this._init`. So let's find out how the `initMixin` fucntion work:
 
 
 *src/instance/init.js*
@@ -175,9 +177,9 @@ export function initMixin (Vue) {
 }
 ```
 
-The instace method of Vue Class are injected in a mixin parttern. We'll find this mixin parttern quite common. Mixin is just a function that takes a construtor, add method to its prototype, and return the construtor.
+The instance method of Vue Class are injected using a mixin pattern. We'll find this mixin pattern quite common when writing Vuejs's instance method later. Mixin is just a function that takes a constructor, add some methods to its prototype, and return the constructor.
 
-So initMixin add `_init` method to `Vue.prototype`. And this method calls `initState` from `state.js`:
+So `initMixin` add `_init` method to `Vue.prototype`. And this method calls `initState` from `state.js`:
 
 *src/instance/state.js*
 
@@ -213,9 +215,9 @@ function proxy(vm, key) {
 }
 ```
 
-Finally, we got to the place where proxy takes place. `initState` calls `initData`, and `initData` loops all keys of `vm._data`, calls proxy on each value.
+Finally, we got to the place where proxy takes place. `initState` calls `initData`, and `initData` iterates all keys of `vm._data`, calls `proxy` on each value.
 
-`proxy` define a property using the same key on vm, and this property has getter and setter, which manipulate `vm._data` for get/set.
+`proxy` define a property on `vm` using the same key, and this property has both getter and setter, which actually get/set data from `vm._data`.
 
 So that's how `vm.a` is proxied to `vm._data.a`.
 
