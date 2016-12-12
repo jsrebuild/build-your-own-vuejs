@@ -1,12 +1,12 @@
 # Build your own Vuejs
 
-This repo include *Build your own Vuejs* book and the code for it.
+This repository includes *Build your own Vuejs* book and the code for it.
 
 In the book *Build your own Vuejs*, we will build a Vuejs from scratch. And you will learn how Vuejs works internally, which helps a lot for your daily development with vue. 
 
 Inspired by the amazing book *Build your own Angularjs*, the code of *Build your own Vuejs* will be developed in a test-driven way. 
 
-We'll focus on Vuejs 2.0.
+We'll focus on Vuejs 2.0. And we assume our reader have played around with Vuejs once and know basics about Vuejs APIs.
 
 Table of Contents
 
@@ -21,10 +21,15 @@ Table of Contents
 
 #### develop
 
+`npm run watch`
+
 #### test
+
+`npm run test`
 
 #### build
 
+`npm run build`
 
 ### Lisence
 
