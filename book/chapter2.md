@@ -165,6 +165,8 @@ Observer.prototype.walk = function(obj) {
 
 `defineReactive` is where `Object.defineProperty` comes into play. 
 
+*src/observer/index.js*
+
 ```
 export function defineReactive (obj, key, val) {
   var dep = new Dep()
@@ -243,6 +245,8 @@ describe('Observer test', function() {
 
 The solution is straightforward, we'll recursively call `observer` function on `val`. If `val` is not an object, the `observer` will return. So when we use `defineReactive` to observe a key-value pair, we keep call `observe` fucntion and keep the return value in `childOb`.
 
+*src/observer/index.js*
+
 ```
 export function defineReactive (obj, key, val) {
   var dep = new Dep()
@@ -253,15 +257,149 @@ export function defineReactive (obj, key, val) {
 }
 ```
 
-The reason that we need to keep the reference is we need to re-collect deps in when getter is called.
+The reason that we need to keep the reference of child observer is we need to re-collect dependencies on child objects when getter is called:
+
+*src/observer/index.js*
+
+```
+···
+get: function reactiveGetter () {
+      var value = val
+      if (Dep.target) {
+        dep.depend()
+        // re-collect for childOb
+        if (childOb) {
+          childOb.dep.depend()
+        }
+      }
+      return value
+    }
+···
+```
+
+And we also need to re-observe child value when setter is called:
+
+*src/observer/index.js*
+
+```
+···
+set: function reactiveSetter (newVal) {
+      var value =  val
+      if (newVal === value || (newVal !== newVal && value !== value)) {
+        return
+      }
+	  val = newVal
+      childOb = observe(newVal) //new
+      dep.notify()
+    }
+···
+```
 
 ### Observing set/delete of data
 
-T
+Vue has some caveats on observing data change. Vue cannot detect property **addition** or **deletion** due to the way Vue handles data change. Data change will only be detected when getter or setter is called, but set/delete of data will call neither getter or setter.
+
+However, it’s possible to add reactive properties to a nested object using the `Vue.set(object, key, value)` method. And delete reactive properties using the `Vue.delete(object, key, value)` method.
+
+Let's write a test case for this, as always:
+
+*test/observer/observer.spec.js*
+
+```
+import {
+  Observer,
+  observe,
+  set as setProp, //new
+  del as delProp  //new
+}
+from "../../src/observer/index"
+
+describe('Observer test', function() {
+  // new test case
+  it('observing set/delete', function() {
+    const obj1 = {
+      a: 1
+    }
+    // should notify set/delete data
+    const ob1 = observe(obj1)
+    const dep1 = ob1.dep
+    spyOn(dep1, 'notify')
+    setProp(obj1, 'b', 2)
+    expect(obj1.b).toBe(2)
+    expect(dep1.notify.calls.count()).toBe(1)
+    delProp(obj1, 'a')
+    expect(hasOwn(obj1, 'a')).toBe(false)
+    expect(dep1.notify.calls.count()).toBe(2)
+    // set existing key, should be a plain set and not
+    // trigger own ob's notify
+    setProp(obj1, 'b', 3)
+    expect(obj1.b).toBe(3)
+    expect(dep1.notify.calls.count()).toBe(2)
+    // should ignore deleting non-existing key
+    delProp(obj1, 'a')
+    expect(dep1.notify.calls.count()).toBe(3)
+  });
+  ···
+}
+```
+
+We add a new test case called `observing set/delete` in `Observer test`.
+
+Now we can implement these two methods:
+  
+*src/observer/index.js*
+
+```
+export function set (obj, key, val) {
+  if (hasOwn(obj, key)) {
+    obj[key] = val
+    return
+  }
+  const ob = obj.__ob__
+  if (!ob) {
+    obj[key] = val
+    return
+  }
+  defineReactive(ob.value, key, val)
+  ob.dep.notify()
+  return val
+}
+
+export function del (obj, key) {
+  const ob = obj.__ob__
+  if (!hasOwn(obj, key)) {
+    return
+  }
+  delete obj[key]
+  if (!ob) {
+    return
+  }
+  ob.dep.notify()
+}
+```
+
+The function `set` will first check if the key exists. If the key exists, we simply give it a new value and return. Then we'll check if this object is reactive using `obj.__ob__`, if not, we'll return. If the key is not there yet, we'll make this key-value pair reactive using `defineReactive`, and call `ob.dep.notify()` to notify the obj's value is changed.
+
+The function `del` is almost the same expect it delete value using `delete` operator.
+
+Besides, we need a little utility function `hasOwn`, which is a simple warpper for `Object.prototype.hasOwnProperty`:
+
+
+*src/util/index.js*
+
+```
+var hasOwnProperty = Object.prototype.hasOwnProperty
+export function hasOwn (obj, key) {
+  return hasOwnProperty.call(obj, key)
+}
+```
 
 ### Observing array 
 
-Todo
+test case
+
+```
+```
 
 ### Watcher
 
