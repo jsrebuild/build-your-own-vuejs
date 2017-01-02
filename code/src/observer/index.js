@@ -1,26 +1,45 @@
 import Dep from './dep'
-
 import {
-	def,
+  def,
   hasOwn,
+  hasProto,
   isObject
-} from '../util/index'
+}
+from '../util/index'
+import { arrayMethods } from './array'
+
+var arrayKeys = Object.getOwnPropertyNames(arrayMethods)
 
 export function Observer(value) {
   this.value = value
   this.dep = new Dep()
-	this.walk(value)
-	def(value, '__ob__', this)
+  //this.walk(value)
+  if(Array.isArray(value)){
+    var augment = hasProto
+        ? protoAugment
+        : copyAugment
+      augment(value, arrayMethods, arrayKeys)
+    this.observeArray(value)
+  }else{
+    this.walk(value)
+  }
+  def(value, '__ob__', this)
 }
 
 Observer.prototype.walk = function(obj) {
   var keys = Object.keys(obj)
   for (var i = 0; i < keys.length; i++) {
-      defineReactive(obj, keys[i], obj[keys[i]])
+    defineReactive(obj, keys[i], obj[keys[i]])
   }
 }
 
-export function observe (value){
+Observer.prototype.observeArray = function(items) {
+  for (let i = 0, l = items.length; i < l; i++) {
+    observe(items[i])
+  }
+}
+
+export function observe(value) {
   if (!isObject(value)) {
     return
   }
@@ -33,13 +52,13 @@ export function observe (value){
   return ob
 }
 
-export function defineReactive (obj, key, val) {
+export function defineReactive(obj, key, val) {
   var dep = new Dep()
   var childOb = observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
-    get: function reactiveGetter () {
+    get: function reactiveGetter() {
       var value = val
       if (Dep.target) {
         dep.depend()
@@ -52,16 +71,41 @@ export function defineReactive (obj, key, val) {
       }
       return value
     },
-    set: function reactiveSetter (newVal) {
-      var value =  val
+    set: function reactiveSetter(newVal) {
+      var value = val
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }
-			val = newVal
+      val = newVal
       childOb = observe(newVal)
       dep.notify()
     }
   })
+}
+
+// helpers
+
+/**
+ * Augment an target Object or Array by intercepting
+ * the prototype chain using __proto__
+ */
+function protoAugment (target, src) {
+  /* eslint-disable no-proto */
+  target.__proto__ = src
+  /* eslint-enable no-proto */
+}
+
+/**
+ * Augment an target Object or Array by defining
+ * hidden properties.
+ *
+ * istanbul ignore next
+ */
+function copyAugment (target, src, keys) {
+  for (let i = 0, l = keys.length; i < l; i++) {
+    var key = keys[i]
+    def(target, key, src[key])
+  }
 }
 
 /**
@@ -69,7 +113,7 @@ export function defineReactive (obj, key, val) {
  * triggers change notification if the property doesn't
  * already exist.
  */
-export function set (obj, key, val) {
+export function set(obj, key, val) {
   // if (Array.isArray(obj)) {
   //   obj.length = Math.max(obj.length, key)
   //   obj.splice(key, 1, val)
@@ -92,7 +136,7 @@ export function set (obj, key, val) {
 /**
  * Delete a property and trigger change if necessary.
  */
-export function del (obj, key) {
+export function del(obj, key) {
   const ob = obj.__ob__
   if (!hasOwn(obj, key)) {
     return
@@ -102,4 +146,14 @@ export function del (obj, key) {
     return
   }
   ob.dep.notify()
+}
+
+function dependArray (value) {
+  for (let e, i = 0, l = value.length; i < l; i++) {
+    e = value[i]
+    e && e.__ob__ && e.__ob__.dep.depend()
+    if (Array.isArray(e)) {
+      dependArray(e)
+    }
+  }
 }

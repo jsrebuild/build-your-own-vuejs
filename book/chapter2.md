@@ -313,6 +313,10 @@ import {
   del as delProp  //new
 }
 from "../../src/observer/index"
+import {
+  hasOwn
+}
+from '../util/index' //new
 
 describe('Observer test', function() {
   // new test case
@@ -400,6 +404,10 @@ test case
 
 ```
 ```
+
+this.observeArray(value)
+
+dependArray(value)
 
 ### Watcher
 

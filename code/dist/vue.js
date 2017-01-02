@@ -162,18 +162,24 @@ function isObject (obj) {
 function Observer(value) {
   this.value = value;
   this.dep = new Dep();
-	this.walk(value);
-	def(value, '__ob__', this);
+  this.walk(value);
+  def(value, '__ob__', this);
 }
 
 Observer.prototype.walk = function(obj) {
   var keys = Object.keys(obj);
   for (var i = 0; i < keys.length; i++) {
-      defineReactive(obj, keys[i], obj[keys[i]]);
+    defineReactive(obj, keys[i], obj[keys[i]]);
   }
 };
 
-function observe (value){
+Observer.prototype.observeArray = function(items) {
+  for (let i = 0, l = items.length; i < l; i++) {
+    observe(items[i]);
+  }
+};
+
+function observe(value) {
   if (!isObject(value)) {
     return
   }
@@ -186,13 +192,13 @@ function observe (value){
   return ob
 }
 
-function defineReactive (obj, key, val) {
+function defineReactive(obj, key, val) {
   var dep = new Dep();
   var childOb = observe(val);
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
-    get: function reactiveGetter () {
+    get: function reactiveGetter() {
       var value = val;
       if (Dep.target) {
         dep.depend();
@@ -205,18 +211,28 @@ function defineReactive (obj, key, val) {
       }
       return value
     },
-    set: function reactiveSetter (newVal) {
-      var value =  val;
-      /* eslint-disable no-self-compare */
+    set: function reactiveSetter(newVal) {
+      var value = val;
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }
-			val = newVal;
+      val = newVal;
       childOb = observe(newVal);
       dep.notify();
     }
   });
 }
+
+/**
+ * Set a property on an object. Adds the new property and
+ * triggers change notification if the property doesn't
+ * already exist.
+ */
+
+
+/**
+ * Delete a property and trigger change if necessary.
+ */
 
 function initState(vm) {
   vm._watchers = [];
