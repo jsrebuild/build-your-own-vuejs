@@ -122,6 +122,12 @@ If there is no exsiting `Observer` instance, it will initiate a new `Observer` i
 *src/observer/index.js*
 
 ```
+import {
+  hasOwn,
+  isObject
+}
+from '../util/index'
+
 export function observe (value){
   if (!isObject(value)) {
     return
@@ -136,16 +142,61 @@ export function observe (value){
 }
 ```
 
+Here, we need a little utility function `hasOwn`, which is a simple warpper for `Object.prototype.hasOwnProperty`:
+
+*src/util/index.js*
+
+```
+var hasOwnProperty = Object.prototype.hasOwnProperty
+export function hasOwn (obj, key) {
+  return hasOwnProperty.call(obj, key)
+}
+```
+
+And another utility function `isObject`:
+
+*src/util/index.js*
+
+```
+···
+export function isObject (obj) {
+  return obj !== null && typeof obj === 'object'
+}
+```
+
 Now it's time to look at the `Observer` constructor. It will init a `Dep` instance, and it calls `walk` with the value. And it attachs observer to `value` as `__ob__ ` property.
 
 *src/observer/index.js*
 
 ```
+import {
+  def, //new
+  hasOwn,
+  isObject
+}
+from '../util/index'
+
 export function Observer(value) {
   this.value = value
   this.dep = new Dep()
   this.walk(value)
-  value.__ob__ = this
+  def(value, '__ob__', this)
+}
+```
+
+`def` here is a new utility function which define property for object key using `Object.defineProperty()` API.
+
+*src/util/index.js*
+
+```
+···
+export function def (obj, key, val, enumerable) {
+  Object.defineProperty(obj, key, {
+    value: val,
+    enumerable: !!enumerable,
+    writable: true,
+    configurable: true
+  })
 }
 ```
 
@@ -314,7 +365,8 @@ import {
 }
 from "../../src/observer/index"
 import {
-  hasOwn
+  hasOwn,
+  isObject
 }
 from '../util/index' //new
 
@@ -386,28 +438,219 @@ The function `set` will first check if the key exists. If the key exists, we sim
 
 The function `del` is almost the same expect it delete value using `delete` operator.
 
-Besides, we need a little utility function `hasOwn`, which is a simple warpper for `Object.prototype.hasOwnProperty`:
+### Observing array 
 
+Our implemetation has one flawn yet, it can't observe array mutaion. Since accessing array element using subscrpt syntax will not trigger getter. So the old school getter/setter is not suitable for array change dectection.
+
+In order to watch array change, we need to hajack a few array method like `Array.prototype.pop()` and `Array.prototype.shift()`. And instead of using subscrpt syntax to set array value, we'll use `Vue.set` API inplemented in the last secion.
+
+Here is the test case for observing array mutation, when we using `Array` API that will cause mutation, the change will be observed. And each of array's element will be observed, too.
+
+*test/observer/observer.spec.js*
+
+```
+describe('Observer test', function() {
+	// new
+	it('observing array mutation', () => {
+    const arr = []
+    const ob = observe(arr)
+    const dep = ob.dep
+    spyOn(dep, 'notify')
+    const objs = [{}, {}, {}]
+    arr.push(objs[0])
+    arr.pop()
+    arr.unshift(objs[1])
+    arr.shift()
+    arr.splice(0, 0, objs[2])
+    arr.sort()
+    arr.reverse()
+    expect(dep.notify.calls.count()).toBe(7)
+    // inserted elements should be observed
+    objs.forEach(obj => {
+      expect(obj.__ob__ instanceof Observer).toBe(true)
+    })
+  });
+  ···
+}
+```
+
+The first step is handle array in `Observer`:
+
+*src/observer/index.js*
+
+```
+export function Observer(value) {
+  this.value = value
+  this.dep = new Dep()
+  //this.walk(value) //deleted
+  // new
+  if(Array.isArray(value)){
+    this.observeArray(value)
+  }else{
+    this.walk(value)
+  }
+  def(value, '__ob__', this)
+}
+```
+
+`observeArray` just iterate over the array and call `observe` on every item.
+
+*src/observer/index.js*
+
+```
+···
+Observer.prototype.observeArray = function(items) {
+  for (let i = 0, l = items.length; i < l; i++) {
+    observe(items[i])
+  }
+}
+```
+
+Next we're going to warp the original `Array` method by modifying the prototype chain. 
+
+First, we create a singleton that has all the array mutation method. Those array methods are warpped with other logic that deals with change detection.
+
+*src/observer/array.js*
+
+```
+import { def } from '../util/index'
+
+const arrayProto = Array.prototype
+export const arrayMethods = Object.create(arrayProto)
+
+/**
+ * Intercept mutating methods and emit events
+ */
+;[
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'sort',
+  'reverse'
+]
+.forEach(function (method) {
+  // cache original method
+  const original = arrayProto[method]
+  def(arrayMethods, method, function mutator () {
+    let i = arguments.length
+    const args = new Array(i)
+    while (i--) {
+      args[i] = arguments[i]
+    }
+    const result = original.apply(this, args)
+    const ob = this.__ob__
+    let inserted
+    switch (method) {
+      case 'push':
+        inserted = args
+        break
+      case 'unshift':
+        inserted = args
+        break
+      case 'splice':
+        inserted = args.slice(2)
+        break
+    }
+    if (inserted) ob.observeArray(inserted)
+    // notify change
+    ob.dep.notify()
+    return result
+  })
+})
+```
+
+`arrayMethods` is the singleton that has all array mutation method.
+
+For all the methods in array:
+
+```
+['push','pop','shift','unshift','splice','sort','reverse']
+```
+
+We define a `mutator` function that warps the original method.
+
+In the `mutator` function, we first get the arguments as an array. Next, we apply the original array method  with the arguments array and keep the result.
+
+For the case when adding new items to array, we call `observeArray` on the new array items. 
+
+Finaly, we notify change using `ob.dep.notify()`, and return the result.
+
+Second, we need to add this singleton into the prototype chain.
+
+If we can use `__proto__` in the current browser, we'll directly point the array's prototype to the singleton we created recently. 
+
+If this is not the case, we'll mix `arrayMethods` singleton into the observed array.
+
+So we need a few helper funtion:
+
+*src/observer/index.js*
+
+```
+// helpers
+/**
+ * Augment an target Object or Array by intercepting
+ * the prototype chain using __proto__
+ */
+function protoAugment (target, src) {
+  target.__proto__ = src
+}
+
+/**
+ * Augment an target Object or Array by defining
+ * properties.
+ */
+function copyAugment (target, src, keys) {
+  for (let i = 0, l = keys.length; i < l; i++) {
+    var key = keys[i]
+    def(target, key, src[key])
+  }
+}
+```
+
+In `Observer` function, we use `protoAugment` or `copyAugment` depending on whether we can use `__proto__` or not, to augment the original array:
+
+*src/observer/index.js*
+
+```
+import {
+  def,
+  hasOwn,
+  hasProto, //new
+  isObject
+}
+from '../util/index'
+
+export function Observer(value) {
+  this.value = value
+  this.dep = new Dep()
+  if(Array.isArray(value)){
+    //new
+    var augment = hasProto
+        ? protoAugment
+        : copyAugment
+      augment(value, arrayMethods, arrayKeys)
+    this.observeArray(value)
+  }else{
+    this.walk(value)
+  }
+  def(value, '__ob__', this)
+}
+```
+
+The definiion of `hasProto` is trival:
 
 *src/util/index.js*
 
 ```
-var hasOwnProperty = Object.prototype.hasOwnProperty
-export function hasOwn (obj, key) {
-  return hasOwnProperty.call(obj, key)
-}
+···
+export var hasProto = '__proto__' in {}
 ```
 
-### Observing array 
+That should be enough to pass the `observing array mutation` test.
 
-test case
-
-```
-```
-
-this.observeArray(value)
-
-dependArray(value)
+//something about dependArray(value)
 
 ### Watcher
 
