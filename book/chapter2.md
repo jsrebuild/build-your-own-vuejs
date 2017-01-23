@@ -654,9 +654,26 @@ That should be enough to pass the `observing array mutation` test.
 
 ### Watcher
 
+We had mocked the `Watcher` in previous test like this:
+
+```
+const watcher = {
+	deps: [],
+	addDep (dep) {
+		this.deps.push(dep)
+		dep.addSub(this)
+    },
+    update: jasmine.createSpy()
+}
+```
+
+So watcher here is basically a object which has a `deps` property that records all dependencies of this watcher, and it also has a `addDep` method for adding dependency, and a `update` method that will be called when the data watched has changed.
+
 ### Watch array
 
 Todo
+
+### Async Batch Queue
 
 ### Warp up
 
