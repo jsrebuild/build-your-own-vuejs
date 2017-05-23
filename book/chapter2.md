@@ -669,6 +669,46 @@ const watcher = {
 
 So watcher here is basically a object which has a `deps` property that records all dependencies of this watcher, and it also has a `addDep` method for adding dependency, and a `update` method that will be called when the data watched has changed.
 
+Let's take a look at the Watcher constructor signature: 
+
+```
+constructor (
+    vm: Component,
+    expOrFn: string | Function,
+    cb: Function,
+    options?: Object
+  )
+```
+
+So the Watcher constructor takes a `expOrFn` paramater, and a callback `cb`. The `expOrFn` is a expression or a function which is evaluated when initializing a watcher. The callback is called when that watcher need to run.
+
+The test below should shed some light on how watcher works.
+
+*test/observer/watcher.spec.js*
+
+```
+import Vue from "../../src/instance/index";
+import Watcher from "../../src/observer/watcher";
+
+describe('Wathcer test', function() {
+  it('should call callback when simple data change', function() {
+  	var vm = new Vue({
+  		data:{
+  			a:2
+  		}
+  	})
+  	var cb = jasmine.createSpy('callback');
+  	var watcher = new Watcher(vm, function(){
+  		var a = vm.a
+  	}, cb)
+  	vm.a = 5;
+    expect(cb).toHaveBeenCalled();
+  });
+});
+```
+
+The `expOrFn` is evaluated so the vm's data's specific reactive getter is called(In the case, `vm.a`'s getter). The watcher set itself as the current target of dep. So `vm.a`'s dep will push this watcher instance to it's `subs` array. And watcher will push `vm.a`'s dep to it's `deps` array. When `vm.a`'s setter is called, `vm.a`'s dep's `subs` array will be iterated and each watcher in `subs` array's `update` method will be called. Finally the callback of watcher will be called.
+
 ### Watch array
 
 Todo

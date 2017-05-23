@@ -2,17 +2,17 @@ import Vue from "../../src/instance/index";
 import Watcher from "../../src/observer/watcher";
 
 describe('Wathcer test', function() {
-  it('should work with path', done => {
+  // it('should work with path', done => {
 
-  })
+  // })
 
-  it('should work with set', done => {
+  // it('should work with set', done => {
 
-  })
+  // })
 
-  it('should work with delete', done => {
+  // it('should work with delete', done => {
 
-  })
+  // })
 
   it('should call callback when simple data change', function() {
   	var vm = new Vue({
