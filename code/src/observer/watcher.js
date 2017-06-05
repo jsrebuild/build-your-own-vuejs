@@ -80,6 +80,5 @@ Watcher.prototype.cleanupDeps = function() {
   this.newDepIds.clear()
   tmp = this.deps
   this.deps = this.newDeps
-  this.newDeps = tmp
-  this.newDeps.length = 0
+  this.newDeps = []
 }

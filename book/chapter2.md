@@ -709,11 +709,120 @@ describe('Wathcer test', function() {
 
 The `expOrFn` is evaluated so the vm's data's specific reactive getter is called(In the case, `vm.a`'s getter). The watcher set itself as the current target of dep. So `vm.a`'s dep will push this watcher instance to it's `subs` array. And watcher will push `vm.a`'s dep to it's `deps` array. When `vm.a`'s setter is called, `vm.a`'s dep's `subs` array will be iterated and each watcher in `subs` array's `update` method will be called. Finally the callback of watcher will be called.
 
+Now we can start inplement the Watcher Class:
+
+**src/observer/watcher.js**
+
+```
+export default function Watcher(vm, expOrFn, cb, options) {
+  options = options ? options : {}
+  this.vm = vm
+  vm._watchers.push(this)
+  this.cb = cb
+
+  // options
+  this.deps = []
+  this.newDeps = []
+  this.depIds = new Set()
+  this.newDepIds = new Set()
+  if (typeof expOrFn === 'function') {
+    this.getter = expOrFn
+  }
+  this.value = this.get()
+}
+```
+
+The get method 
+
+**src/observer/watcher.js**
+
+```
+Watcher.prototype.get = function() {
+  pushTarget(this)
+  var value = this.getter.call(this.vm, this.vm)
+  popTarget()
+  this.cleanupDeps()
+  return value
+}
+```
+
+addDep and cleanupDeps methods
+
+**src/observer/watcher.js**
+
+```
+/**
+ * Add a dependency to this directive.
+ */
+Watcher.prototype.addDep = function(dep) {
+  var id = dep.id
+  if (!this.newDepIds.has(id)) {
+    this.newDepIds.add(id)
+    this.newDeps.push(dep)
+    if (!this.depIds.has(id)) {
+      dep.addSub(this)
+    }
+  }
+}
+
+/**
+ * Clean up for dependency collection.
+ */
+Watcher.prototype.cleanupDeps = function() {
+  var i = this.deps.length
+  while (i--) {
+    var dep = this.deps[i]
+    if (!this.newDepIds.has(dep.id)) {
+      dep.removeSub(this)
+    }
+  }
+  var tmp = this.depIds
+  this.depIds = this.newDepIds
+  this.newDepIds = tmp
+  this.newDepIds.clear()
+  tmp = this.deps
+  this.deps = this.newDeps
+  this.newDeps = []
+}
+```
+
+`Watcher.prototype.update` and `Watcher.prototype.run` method 
+
+**src/observer/watcher.js**
+
+```
+Watcher.prototype.update = function() {
+  console.log("update!!")
+  this.run()
+}
+
+Watcher.prototype.run = function() {
+  var value = this.get()
+  var oldValue = this.value
+  this.value = value
+  this.cb.call(this.vm, value, oldValue)
+}
+```
+
 ### Watch array
 
 Todo
 
 ### Async Batch Queue
+
+Introduction: Why Async Batch Queue?
+
+unit test
+
+**src/observer/scheduler.js**
+
+
+queue, flushQueue
+
+```
+```
+
+next Tick
 
 ### Warp up
 
