@@ -810,6 +810,8 @@ Todo
 
 ### Async Batch Queue
 
+The unit test part will use Vue contructor. So this part should be moved to later chapters.
+
 Introduction: Why Async Batch Queue?
 
 unit test
