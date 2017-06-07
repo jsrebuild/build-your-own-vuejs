@@ -9,5 +9,7 @@ export function initMixin (Vue) {
   	initLifecycle(vm)
   	initState(vm)
   	initRender(vm)
+
+  	vm.$mount(options)
   }
 }

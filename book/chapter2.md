@@ -714,25 +714,28 @@ Now we can start inplement the Watcher Class:
 **src/observer/watcher.js**
 
 ```
+let uid = 0
+
 export default function Watcher(vm, expOrFn, cb, options) {
   options = options ? options : {}
   this.vm = vm
   vm._watchers.push(this)
   this.cb = cb
-
+  this.id = ++uid
+	
   // options
   this.deps = []
   this.newDeps = []
   this.depIds = new Set()
   this.newDepIds = new Set()
-  if (typeof expOrFn === 'function') {
-    this.getter = expOrFn
-  }
+  this.getter = expOrFn
   this.value = this.get()
 }
 ```
 
-The get method 
+The `Watcher` class initialize some properties. Each `Watcher` instance has a unique id for further use. This is set via `this.id = ++uid`. `this.deps` and `this.newDeps` are array of deps object, these arrays are used for Deps bookkeeping. We'll see why we need two arrays to achieve that later. `this.depIds` and `this.newDepIds` are the id set of the corresponding deps array. We can lookup whether particular dep instance exists in the deps array or not quickly through these sets.
+
+The last two line evaluate the expression/function passed in. This step is where dependency collection happens. Next we need to implement `Watcher.prototype.get`.
 
 **src/observer/watcher.js**
 
@@ -746,7 +749,11 @@ Watcher.prototype.get = function() {
 }
 ```
 
-addDep and cleanupDeps methods
+`Watcher.prototype.get` method first push the current `Watcher` instance as the `Dep.target`. Then get the value of through `this.getter.call(this.vm, this.vm)`. The value is not important if the getter is a function.
+
+After that, we need to pop target, and clean up. Cleanning up is needed because every  time the 	`Watcher` instance is re-evaluate, the bookkeeping of the dep-watcher mapping is different. We need to update dep's sub array, and watcher's deps array, when certain data has changed.
+
+So that's why we need two arrays in the `Watcher` constructor. The `newDep` array and `newDepIds` array are used for a new dependency collection run. The last time's dependency is saved in the `dep` and `depIds` array. What `cleanupDeps`  does is simply move the data in the  `newDep` and `newDepIds` array to the `dep` and `depIds` array, and reset the  `newDep` and `newDepIds` array.
 
 **src/observer/watcher.js**
 
@@ -786,7 +793,9 @@ Watcher.prototype.cleanupDeps = function() {
 }
 ```
 
-`Watcher.prototype.update` and `Watcher.prototype.run` method 
+Finally, the `Watcher.prototype.update` and `Watcher.prototype.run` method are used when the `Wathcher` instance need to re-evaluate. `Watcher.prototype.update` simply calls `Watcher.prototype.run`(The warpper here is used for further asnyc batch mechanism).
+
+`Watcher.prototype.run` calls `this.get` to get the new value, and calls the callback of the `Wathcher` instance to notify user that the data has changed.
 
 **src/observer/watcher.js**
 
@@ -804,9 +813,6 @@ Watcher.prototype.run = function() {
 }
 ```
 
-### Watch array
-
-Todo
 
 ### Async Batch Queue
 

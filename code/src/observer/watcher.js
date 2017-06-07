@@ -3,12 +3,14 @@ import Dep, {
 }
 from './dep'
 
+let uid = 0
+
 export default function Watcher(vm, expOrFn, cb, options) {
   options = options ? options : {}
   this.vm = vm
   vm._watchers.push(this)
   this.cb = cb
-
+  this.id = ++uid
   // options
   this.deep = !!options.deep
   this.user = !!options.user

@@ -6,7 +6,11 @@ export function initLifecycle(vm) {
 }
 
 export function lifecycleMixin(Vue) {
-  Vue.prototype._mount = function(el) {
+	Vue.prototype._update = function (vnode) {
+
+	}
+  Vue.prototype.$mount = function(el) {
+
   	var vm = this
     vm._watcher = new Watcher(vm, function(){
       console.log(vm.a, "update!!!")
