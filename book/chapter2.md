@@ -15,7 +15,7 @@ That's basically how the reactivity system works from a 100,000 feet view. In th
 
 
 
-### Dep
+### 2.1 Dep
 
 The implemetation of `Dep` is stratforwd. Each dep instance has a uid to for identification. The `subs` array records all watchers subscribe to this dep instance. `Dep.prototype.notify` call each subscribers' update method in `subs` array. `Dep.prototype.depend` is used for dependency collecttion during watcher's re-evaluation. We'll come to watchers later. For now you should only konw that `Dep.target` is the watcher instance being re-evaluated at the moment. Since this property is a static, so `Dep.target` works globally and points to one watcher at a time.
 
@@ -54,7 +54,7 @@ Dep.prototype.notify = function() {
 Dep.target = null
 ```
 
-### Observer basics
+### 2.2Observer basics
 
 
 We start by a boilerplate like this:
@@ -268,7 +268,7 @@ Dep.prototype.notify = function() {
 
 Let's try `npm run test`. The test case we wrote earilier should all pass.
 
-### Observing nested object
+### 2.3 Observing nested object
 
 We can only observe simple plain object with primitive values at this time. So in the section we'll add support for observing non-primitive value, like object.
 
@@ -346,7 +346,7 @@ set: function reactiveSetter (newVal) {
 ···
 ```
 
-### Observing set/delete of data
+### 2.4 Observing set/delete of data
 
 Vue has some caveats on observing data change. Vue cannot detect property **addition** or **deletion** due to the way Vue handles data change. Data change will only be detected when getter or setter is called, but set/delete of data will call neither getter or setter.
 
@@ -438,7 +438,7 @@ The function `set` will first check if the key exists. If the key exists, we sim
 
 The function `del` is almost the same expect it delete value using `delete` operator.
 
-### Observing array 
+### 2.5 Observing array 
 
 Our implemetation has one flawn yet, it can't observe array mutaion. Since accessing array element using subscrpt syntax will not trigger getter. So the old school getter/setter is not suitable for array change dectection.
 
@@ -652,7 +652,7 @@ That should be enough to pass the `observing array mutation` test.
 
 //something about dependArray(value)
 
-### Watcher
+### 2.6 Watcher
 
 We had mocked the `Watcher` in previous test like this:
 
@@ -814,7 +814,7 @@ Watcher.prototype.run = function() {
 ```
 
 
-### Async Batch Queue
+### 2.7 Async Batch Queue
 
 The unit test part will use Vue contructor. So this part should be moved to later chapters.
 
@@ -832,7 +832,7 @@ queue, flushQueue
 
 next Tick
 
-### Warp up
+### 2.8 Warp up
 
 Todo
 
