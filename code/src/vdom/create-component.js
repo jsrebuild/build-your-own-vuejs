@@ -4,7 +4,7 @@ export function createComponent (
   context,
   children,
   tag
-): VNode | void {
+){
   if (isUndef(Ctor)) {
     return
   }
@@ -14,25 +14,6 @@ export function createComponent (
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
     Ctor = baseCtor.extend(Ctor)
-  }
-
-  // if at this stage it's not a constructor or an async component factory,
-  // reject.
-  if (typeof Ctor !== 'function') {
-    if (process.env.NODE_ENV !== 'production') {
-      warn(`Invalid Component definition: ${String(Ctor)}`, context)
-    }
-    return
-  }
-
-  // async component
-  if (isUndef(Ctor.cid)) {
-    Ctor = resolveAsyncComponent(Ctor, baseCtor, context)
-    if (Ctor === undefined) {
-      // return nothing if this is indeed an async component
-      // wait for the callback to trigger parent update.
-      return
-    }
   }
 
   // resolve constructor options in case global mixins are applied after
