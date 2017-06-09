@@ -1,10 +1,9 @@
-export function createComponent (
-  Ctor,
-  data,
-  context,
-  children,
-  tag
-){
+import {
+  isUndef,
+  isObject
+} from '../util/index'
+
+export function createComponent ( Ctor, data, context, children, tag){
   if (isUndef(Ctor)) {
     return
   }
@@ -18,42 +17,42 @@ export function createComponent (
 
   // resolve constructor options in case global mixins are applied after
   // component constructor creation
-  resolveConstructorOptions(Ctor)
+  // resolveConstructorOptions(Ctor)
 
   data = data || {}
 
-  // transform component v-model data into props & events
-  if (isDef(data.model)) {
-    transformModel(Ctor.options, data)
-  }
+  // // transform component v-model data into props & events
+  // if (isDef(data.model)) {
+  //   transformModel(Ctor.options, data)
+  // }
 
   // extract props
-  const propsData = extractPropsFromVNodeData(data, Ctor, tag)
+  const propsData = Ctor.options.props
 
-  // functional component
-  if (isTrue(Ctor.options.functional)) {
-    return createFunctionalComponent(Ctor, propsData, data, context, children)
-  }
+  // // functional component
+  // if (isTrue(Ctor.options.functional)) {
+  //   return createFunctionalComponent(Ctor, propsData, data, context, children)
+  // }
 
-  // extract listeners, since these needs to be treated as
-  // child component listeners instead of DOM listeners
-  const listeners = data.on
-  // replace with listeners with .native modifier
-  data.on = data.nativeOn
+  // // extract listeners, since these needs to be treated as
+  // // child component listeners instead of DOM listeners
+  // const listeners = data.on
+  // // replace with listeners with .native modifier
+  // data.on = data.nativeOn
 
-  if (isTrue(Ctor.options.abstract)) {
-    // abstract components do not keep anything
-    // other than props & listeners
-    data = {}
-  }
+  // if (isTrue(Ctor.options.abstract)) {
+  //   // abstract components do not keep anything
+  //   // other than props & listeners
+  //   data = {}
+  // }
 
   // merge component management hooks onto the placeholder node
-  mergeHooks(data)
+  // mergeHooks(data)
 
   // return a placeholder vnode
   const name = Ctor.options.name || tag
   const vnode = new VNode(
-    `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
+    "vue-component-" + name,
     data, undefined, undefined, undefined, context,
     { Ctor, propsData, listeners, tag, children }
   )

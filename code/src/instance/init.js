@@ -6,6 +6,10 @@ export function initMixin (Vue) {
   Vue.prototype._init = function (options) {
   	var vm = this
   	vm.$options = options
+
+  	// should be in global api
+  	vm.$options._base = Vue
+  	
   	initLifecycle(vm)
   	initState(vm)
   	initRender(vm)
