@@ -1,5 +1,14 @@
 import VNode, { createEmptyVNode } from './vnode'
 
+import {
+  warn,
+  isDef,
+  isUndef,
+  isTrue,
+  isPrimitive,
+  resolveAsset
+} from '../util/index'
+
 const SIMPLE_NORMALIZE = 1
 const ALWAYS_NORMALIZE = 2
 
@@ -11,11 +20,6 @@ export function createElement (
   normalizationType,
   alwaysNormalize
 ){
-  if (Array.isArray(data) || isPrimitive(data)) {
-    normalizationType = children
-    children = data
-    data = undefined
-  }
   if (isTrue(alwaysNormalize)) {
     normalizationType = ALWAYS_NORMALIZE
   }
@@ -29,26 +33,6 @@ export function _createElement (
   children,
   normalizationType
 ){
-  if (isDef(data) && isDef((data: any).__ob__)) {
-    process.env.NODE_ENV !== 'production' && warn(
-      `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
-      'Always create fresh vnode data objects in each render!',
-      context
-    )
-    return createEmptyVNode()
-  }
-  if (!tag) {
-    // in case of component :is set to falsy value
-    return createEmptyVNode()
-  }
-  // support single function children as default scoped slot
-  if (Array.isArray(children) &&
-    typeof children[0] === 'function'
-  ) {
-    data = data || {}
-    data.scopedSlots = { default: children[0] }
-    children.length = 0
-  }
   if (normalizationType === ALWAYS_NORMALIZE) {
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
@@ -57,7 +41,6 @@ export function _createElement (
   let vnode, ns
   if (typeof tag === 'string') {
     let Ctor
-    ns = config.getTagNamespace(tag)
     if (config.isReservedTag(tag)) {
       // platform built-in elements
       vnode = new VNode(
@@ -80,10 +63,7 @@ export function _createElement (
     // direct component options / constructor
     vnode = createComponent(tag, data, context, children)
   }
-  if (isDef(vnode)) {
-    if (ns) applyNS(vnode, ns)
-    return vnode
-  } else {
+  if (!isDef(vnode)) {
     return createEmptyVNode()
   }
 }

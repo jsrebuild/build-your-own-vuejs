@@ -3,6 +3,10 @@ import {
   isObject
 } from '../util/index'
 
+// create的时候主要是返回VNode，真正的创建在render的时候。
+// 这个文件主要包括一个createComponent函数（返回VNode），和一组Component占位VNode专用的VNode钩子。
+// 在patch的时候，比如init的时候，这个钩子就会调用createComponentInstanceForVnode初始化节点
+
 export function createComponent ( Ctor, data, context, children, tag){
   if (isUndef(Ctor)) {
     return
