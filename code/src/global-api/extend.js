@@ -1,8 +1,8 @@
-import { ASSET_TYPES } from 'shared/constants'
-import { warn, extend, mergeOptions } from '../util/index'
-import { defineComputed, proxy } from '../instance/state'
+import { ASSET_TYPES } from '../shared/constants'
+import { extend, mergeOptions } from '../util/index'
+import { proxy } from '../instance/state'
 
-export function initExtend (Vue: GlobalAPI) {
+export function initExtend (Vue) {
   /**
    * Each instance constructor, including Vue, has a unique
    * cid. This enables us to create wrapped "child
@@ -14,7 +14,7 @@ export function initExtend (Vue: GlobalAPI) {
   /**
    * Class inheritance
    */
-  Vue.extend = function (extendOptions: Object): Function {
+  Vue.extend = function (extendOptions){
     extendOptions = extendOptions || {}
     const Super = this
     const SuperId = Super.cid
@@ -24,15 +24,6 @@ export function initExtend (Vue: GlobalAPI) {
     }
 
     const name = extendOptions.name || Super.options.name
-    if (process.env.NODE_ENV !== 'production') {
-      if (!/^[a-zA-Z][\w-]*$/.test(name)) {
-        warn(
-          'Invalid component name: "' + name + '". Component names ' +
-          'can only contain alphanumeric characters and the hyphen, ' +
-          'and must start with a letter.'
-        )
-      }
-    }
 
     const Sub = function VueComponent (options) {
       this._init(options)
@@ -91,9 +82,9 @@ function initProps (Comp) {
   }
 }
 
-function initComputed (Comp) {
-  const computed = Comp.options.computed
-  for (const key in computed) {
-    defineComputed(Comp.prototype, key, computed[key])
-  }
-}
+// function initComputed (Comp) {
+//   const computed = Comp.options.computed
+//   for (const key in computed) {
+//     defineComputed(Comp.prototype, key, computed[key])
+//   }
+// }

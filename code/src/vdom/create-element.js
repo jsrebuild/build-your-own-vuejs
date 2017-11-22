@@ -1,7 +1,6 @@
 import VNode, { createEmptyVNode } from './vnode'
 
 import {
-  warn,
   isDef,
   isUndef,
   isTrue,

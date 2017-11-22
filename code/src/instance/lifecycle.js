@@ -15,6 +15,7 @@ export function lifecycleMixin(Vue) {
     vm._watcher = new Watcher(vm, function(){
       console.log(vm.a, "update!!!")
     }, noop)
+    return vm
   }
   Vue.prototype.$destroy = function() {
 

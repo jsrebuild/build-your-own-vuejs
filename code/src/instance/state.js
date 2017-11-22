@@ -37,7 +37,7 @@ export function stateMixin(Vue) {
 
 }
 
-function proxy(vm, key) {
+export function proxy(vm, key) {
   if (!isReserved(key)) {
     Object.defineProperty(vm, key, {
       configurable: true,

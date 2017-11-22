@@ -1,4 +1,4 @@
-import Vue from "../../src/instance/index"
+import Vue from "../../src/index"
 import { createComponent } from '../../src/vdom/create-component'
 
 describe('create-component', () => {

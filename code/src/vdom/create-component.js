@@ -1,3 +1,5 @@
+import VNode from './vnode'
+
 import {
   isUndef,
   isObject
@@ -38,11 +40,11 @@ export function createComponent ( Ctor, data, context, children, tag){
   //   return createFunctionalComponent(Ctor, propsData, data, context, children)
   // }
 
-  // // extract listeners, since these needs to be treated as
-  // // child component listeners instead of DOM listeners
-  // const listeners = data.on
-  // // replace with listeners with .native modifier
-  // data.on = data.nativeOn
+  // extract listeners, since these needs to be treated as
+  // child component listeners instead of DOM listeners
+  const listeners = data.on
+  // replace with listeners with .native modifier
+  data.on = data.nativeOn
 
   // if (isTrue(Ctor.options.abstract)) {
   //   // abstract components do not keep anything
