@@ -1,4 +1,6 @@
 import VNode, { createEmptyVNode } from './vnode'
+import config from '../config'
+import { createComponent } from './create-component'
 
 import {
   isDef,
@@ -32,11 +34,11 @@ export function _createElement (
   children,
   normalizationType
 ){
-  if (normalizationType === ALWAYS_NORMALIZE) {
-    children = normalizeChildren(children)
-  } else if (normalizationType === SIMPLE_NORMALIZE) {
-    children = simpleNormalizeChildren(children)
-  }
+  // if (normalizationType === ALWAYS_NORMALIZE) {
+  //   children = normalizeChildren(children)
+  // } else if (normalizationType === SIMPLE_NORMALIZE) {
+  //   children = simpleNormalizeChildren(children)
+  // }
   let vnode, ns
   if (typeof tag === 'string') {
     let Ctor
@@ -65,4 +67,5 @@ export function _createElement (
   if (!isDef(vnode)) {
     return createEmptyVNode()
   }
+  return vnode
 }

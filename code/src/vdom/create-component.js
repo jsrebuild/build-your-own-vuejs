@@ -5,6 +5,10 @@ import {
   isObject
 } from '../util/index'
 
+import {
+  extractPropsFromVNodeData
+} from './helpers/index'
+
 // create的时候主要是返回VNode，真正的创建在render的时候。
 // 这个文件主要包括一个createComponent函数（返回VNode），和一组Component占位VNode专用的VNode钩子。
 // 在patch的时候，比如init的时候，这个钩子就会调用createComponentInstanceForVnode初始化节点
@@ -33,7 +37,7 @@ export function createComponent ( Ctor, data, context, children, tag){
   // }
 
   // extract props
-  const propsData = Ctor.options.props
+  const propsData = extractPropsFromVNodeData(data, Ctor, tag)
 
   // // functional component
   // if (isTrue(Ctor.options.functional)) {
@@ -58,7 +62,7 @@ export function createComponent ( Ctor, data, context, children, tag){
   // return a placeholder vnode
   const name = Ctor.options.name || tag
   const vnode = new VNode(
-    "vue-component-" + name,
+    `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
     data, undefined, undefined, undefined, context,
     { Ctor, propsData, listeners, tag, children }
   )

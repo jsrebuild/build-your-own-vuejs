@@ -5,10 +5,12 @@ describe('create-component', () => {
   let vm
   beforeEach(done => {
     vm = new Vue({
-      data () {
-        msg: 'hello, my children'
+      data: function(){
+        return {
+          msg: 'hello, my children'
+        }
       },
-      render () {}
+      render: function() {}
     }).$mount()
     done()
   })

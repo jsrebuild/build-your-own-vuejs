@@ -32,6 +32,7 @@
     "karma-rollup-plugin": "^0.2.4",
     "phantomjs-prebuilt": "^2.1.14",
     "rollup": "^0.36.4",
+    "rollup-plugin-alias": "^1.4.0",
     "rollup-watch": "^2.5.0"
   }
 }

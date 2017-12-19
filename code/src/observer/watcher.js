@@ -54,7 +54,6 @@ Watcher.prototype.addDep = function(dep) {
 }
 
 Watcher.prototype.update = function() {
-  console.log("update!!")
   this.run()
 }
 

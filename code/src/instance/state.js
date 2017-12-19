@@ -11,16 +11,19 @@ import {
 
 export function initState(vm) {
   vm._watchers = []
-    //initProps(vm)
-    //initMethods(vm)
+  //initProps(vm)
+  //initMethods(vm)
   initData(vm)
-    //initComputed(vm)
-    //initWatch(vm)
+  //initComputed(vm)
+  //initWatch(vm)
 }
 
 function initData(vm) {
   var data = vm.$options.data
-  vm._data = data
+  data = vm._data = typeof data === 'function'
+    ? getData(data, vm)
+    : data || {}
+  console.log('data init', vm._data, vm.$options.data)
   // proxy data on instance
   var keys = Object.keys(data)
 
@@ -31,6 +34,10 @@ function initData(vm) {
 
   // observe data
   observe(data)
+}
+
+function getData(data, vm) {
+  return data.call(vm, vm)
 }
 
 export function stateMixin(Vue) {
