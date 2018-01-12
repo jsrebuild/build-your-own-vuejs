@@ -25,3 +25,7 @@ export const createEmptyVNode = () => {
   node.isComment = true
   return node
 }
+
+export function createTextVNode (val) {
+  return new VNode(undefined, undefined, undefined, String(val))
+}

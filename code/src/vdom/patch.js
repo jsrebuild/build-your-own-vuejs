@@ -23,7 +23,7 @@ function sameVnode(a, b) {
     a.key === b.key && (
       a.tag === b.tag &&
       a.isComment === b.isComment &&
-      isDef(a.data) === isDef(b.data) &&
+      isDef(a.data) === isDef(b.data)
       ) 
   )
 }

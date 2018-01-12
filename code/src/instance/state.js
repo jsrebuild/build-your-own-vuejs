@@ -23,7 +23,6 @@ function initData(vm) {
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
-  console.log('data init', vm._data, vm.$options.data)
   // proxy data on instance
   var keys = Object.keys(data)
 
