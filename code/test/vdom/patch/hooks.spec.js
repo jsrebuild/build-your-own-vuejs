@@ -147,17 +147,17 @@ describe('vdom patch: hooks', () => {
     expect(result.length).toBe(1)
   })
 
-  // it('should call `init` and `prepatch` listeners on root', () => {
-  //   let count = 0
-  //   function init (vnode) { count++ }
-  //   function prepatch (oldVnode, newVnode) { count++ }
-  //   const vnode1 = new VNode('div', { hook: { init, prepatch }})
-  //   patch(vnode0, vnode1)
-  //   expect(count).toBe(1)
-  //   const vnode2 = new VNode('span', { hook: { init, prepatch }})
-  //   patch(vnode1, vnode2)
-  //   expect(count).toBe(2)
-  // })
+  it('should call `init` and `prepatch` listeners on root', () => {
+    let count = 0
+    function init (vnode) { count++ }
+    function prepatch (oldVnode, newVnode) { count++ }
+    const vnode1 = new VNode('div', { hook: { init, prepatch }})
+    patch(vnode0, vnode1)
+    expect(count).toBe(1)
+    const vnode2 = new VNode('span', { hook: { init, prepatch }})
+    patch(vnode1, vnode2)
+    expect(count).toBe(2)
+  })
 
   it('should remove element when all remove listeners are done', () => {
     let rm1, rm2, rm3

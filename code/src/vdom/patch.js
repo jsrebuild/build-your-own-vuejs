@@ -53,6 +53,9 @@ export function createPatchFunction(backend) {
     var data = vnode.data
     var children = vnode.children
     var tag = vnode.tag
+    if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
+      return
+    }
     if (isDef(tag)) {
       vnode.elm = nodeOps.createElement(tag, vnode)
       createChildren(vnode, children, insertedVnodeQueue)
