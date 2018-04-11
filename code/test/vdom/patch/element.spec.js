@@ -36,21 +36,21 @@ describe('vdom patch: element', () => {
   //   expect(`Unknown custom element: <unknown-foo>`).toHaveBeenWarned()
   // })
 
-  // it('should create an elements which having text content', () => {
-  //   const vnode = new VNode('div', {}, [createTextVNode('hello world')])
-  //   const elm = patch(null, vnode)
-  //   expect(elm.innerHTML).toBe('hello world')
-  // })
+  it('should create an elements which having text content', () => {
+    const vnode = new VNode('div', {}, [createTextVNode('hello world')])
+    const elm = patch(null, vnode)
+    expect(elm.innerHTML).toBe('hello world')
+  })
 
-  // it('should create create an elements which having span and text content', () => {
-  //   const vnode = new VNode('div', {}, [
-  //     new VNode('span'),
-  //     createTextVNode('hello world')
-  //   ])
-  //   const elm = patch(null, vnode)
-  //   expect(elm.childNodes[0].tagName).toBe('SPAN')
-  //   expect(elm.childNodes[1].textContent).toBe('hello world')
-  // })
+  it('should create create an elements which having span and text content', () => {
+    const vnode = new VNode('div', {}, [
+      new VNode('span'),
+      createTextVNode('hello world')
+    ])
+    const elm = patch(null, vnode)
+    expect(elm.childNodes[0].tagName).toBe('SPAN')
+    expect(elm.childNodes[1].textContent).toBe('hello world')
+  })
 
   // it('should create element with scope attribute', () => {
   //   const vnode = new VNode('div')
