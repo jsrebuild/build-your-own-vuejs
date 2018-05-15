@@ -95,7 +95,17 @@ export function createPatchFunction(backend) {
     invokeCreateHooks(vnode, insertedVnodeQueue)
   }
 
-  function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue) {
+  function createKeyToOldIdx (children, beginIdx, endIdx) {
+    let i, key
+    const map = {}
+    for (i = beginIdx; i <= endIdx; ++i) {
+      key = children[i].key
+      if (isDef(key)) map[key] = i
+    }
+    return map
+  }
+
+  function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
     var oldStartIdx = 0
     var newStartIdx = 0
     var oldEndIdx = oldCh.length - 1
@@ -105,6 +115,11 @@ export function createPatchFunction(backend) {
     var newStartVnode = newCh[0]
     var newEndVnode = newCh[newEndIdx]
     var oldKeyToIdx, idxInOld, vnodeToMove, refElm
+
+    // removeOnly is a special flag used only by <transition-group>
+    // to ensure removed elements stay in correct relative positions
+    // during leaving transitions
+    const canMove = !removeOnly
 
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
@@ -261,11 +276,10 @@ export function createPatchFunction(backend) {
     }
   }
 
-  function patchVnode(oldVnode, vnode, insertedVnodeQueue) {
+  function patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly) {
     if (oldVnode === vnode) {
       return
     }
-
     // invoke prepatch hook
     let i
     const data = vnode.data
@@ -283,7 +297,7 @@ export function createPatchFunction(backend) {
     }
     if (isUndef(vnode.text)) {
       if (isDef(oldCh) && isDef(ch)) {
-        if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue)
+        if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
       } else if (isDef(ch)) {
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
@@ -295,7 +309,6 @@ export function createPatchFunction(backend) {
     } else if (oldVnode.text !== vnode.text) {
       nodeOps.setTextContent(elm, vnode.text)
     }
-
     // invoke postpatch hook
     if (isDef(data)) {
       if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
@@ -340,7 +353,7 @@ export function createPatchFunction(backend) {
     }
   }
 
-  return function patch(oldVnode, vnode, parentElm, refElm) {
+  return function patch(oldVnode, vnode, parentElm, refElm, removeOnly) {
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
@@ -358,7 +371,7 @@ export function createPatchFunction(backend) {
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
-        patchVnode(oldVnode, vnode, insertedVnodeQueue)
+        patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
       } else {
         if (isRealElement) {
           // either not server-rendered, or hydration failed.
