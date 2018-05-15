@@ -14,10 +14,8 @@ Table of Contents
 
 + [Chapter1: Vuejs Overview](https://github.com/jsrebuild/build-your-own-vuejs/blob/master/book/chapter1.md)
 + [Chapter2: Reactivity system](https://github.com/jsrebuild/build-your-own-vuejs/blob/master/book/chapter2.md)
-+ Chapter3: Instance lifecycle
-+ Chapter4: Utility
-+ Chapter5: Vritual DOM basics
-+ Chapter6: Vritual DOM with vuejs
++ [Chapter3: Virtual DOM](https://github.com/jsrebuild/build-your-own-vuejs/blob/master/book/chapter3.md)
++ [Chapter4: Instance methods and global API](https://github.com/jsrebuild/build-your-own-vuejs/blob/master/book/chapter4.md)
 
 ### Code
 
