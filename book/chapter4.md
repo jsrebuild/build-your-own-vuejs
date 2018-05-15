@@ -1,1 +1,1 @@
-## Chapter4: Instance methods and global API
+## Chapter4: Built-in modules: directives, attributes, class and style
