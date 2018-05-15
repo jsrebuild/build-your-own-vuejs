@@ -1,6 +1,9 @@
-import VNode, { createEmptyVNode } from './vnode'
-import config from '../config'
-import { createComponent } from './create-component'
+/**
+ * normalization这一步应该是在Compile的时候就已经做了，这里我们先不加相关的处理
+ */
+import VNode, { createEmptyVNode } from "./vnode";
+import config from "../config";
+import { createComponent } from "./create-component";
 
 import {
   isDef,
@@ -8,64 +11,59 @@ import {
   isTrue,
   isPrimitive,
   resolveAsset
-} from '../util/index'
+} from "../util/index";
 
-const SIMPLE_NORMALIZE = 1
-const ALWAYS_NORMALIZE = 2
 
-export function createElement (
+export function createElement(
   context,
   tag,
   data,
-  children,
-  normalizationType,
-  alwaysNormalize
-){
-  if (isTrue(alwaysNormalize)) {
-    normalizationType = ALWAYS_NORMALIZE
-  }
-  return _createElement(context, tag, data, children, normalizationType)
+  children
+) {
+  return _createElement(context, tag, data, children);
 }
 
-export function _createElement (
+export function _createElement(
   context,
   tag,
   data,
-  children,
-  normalizationType
-){
+  children
+) {
   // if (normalizationType === ALWAYS_NORMALIZE) {
   //   children = normalizeChildren(children)
   // } else if (normalizationType === SIMPLE_NORMALIZE) {
   //   children = simpleNormalizeChildren(children)
   // }
-  let vnode, ns
-  if (typeof tag === 'string') {
-    let Ctor
+  let vnode, ns;
+  if (typeof tag === "string") {
+    let Ctor;
     if (config.isReservedTag(tag)) {
       // platform built-in elements
       vnode = new VNode(
-        config.parsePlatformTagName(tag), data, children,
-        undefined, undefined, context
-      )
-    } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
+        config.parsePlatformTagName(tag),
+        data,
+        children,
+        undefined,
+        undefined,
+        context
+      );
+    } else if (
+      isDef((Ctor = resolveAsset(context.$options, "components", tag)))
+    ) {
       // component
-      vnode = createComponent(Ctor, data, context, children, tag)
+      vnode = createComponent(Ctor, data, context, children, tag);
     } else {
       // unknown or unlisted namespaced elements
       // check at runtime because it may get assigned a namespace when its
       // parent normalizes children
-      vnode = new VNode(
-        tag, data, children,
-        undefined, undefined, context
-      )
+      vnode = new VNode(tag, data, children, undefined, undefined, context);
     }
   } else {
     // direct component options / constructor
-    vnode = createComponent(tag, data, context, children)
+    vnode = createComponent(tag, data, context, children);
   }
   if (!isDef(vnode)) {
-    return createEmptyVNode()
+    return createEmptyVNode();
   }
-  return vnode
+  return vnode;
 }
