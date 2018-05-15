@@ -1,5 +1,7 @@
 # Build your own Vuejs
 
+> This project is working in progress, stay tuned.
+
 This repository includes *Build your own Vuejs* book and the code for it.
 
 In the book *Build your own Vuejs*, we will build a Vuejs from scratch. And you will learn how Vuejs works internally, which helps a lot for your daily development with vue. 
