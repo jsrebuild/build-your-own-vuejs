@@ -1,14 +1,18 @@
 const alias = require('rollup-plugin-alias');
+const path = require('path')
+const resolve = p => path.resolve(__dirname, './', p)
 
 export default {
-  entry: 'src/instance/index.js',
-  format: 'iife',
-  moduleName: 'Vue',
-  dest: 'dist/vue.js', // equivalent to --output
-  plugins: [
-    alias({
-      core: resolve('src/'),
-      shared: resolve('src/shared')
-    })
-  ]
-};
+    input: 'src/instance/index.js',
+    output: {
+      name: 'Vue',
+      file: 'dist/vue.js',
+      format: 'iife'
+    },
+    plugins: [
+      alias({
+        core: resolve('src/'),
+        shared: resolve('src/shared')
+      })
+    ] 
+  };

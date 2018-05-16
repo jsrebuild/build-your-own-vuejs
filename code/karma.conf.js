@@ -2,24 +2,28 @@ const alias = require('rollup-plugin-alias');
 const path = require('path')
 const resolve = p => path.resolve(__dirname, './', p)
 
-module.exports = function (config) {
+module.exports = function(config) {
   config.set({
+    files: [{ pattern: 'test/**/*.spec.js', watched: false }],
     frameworks: ['jasmine'],
-    files: [
-      './test/**/*.js'
-    ],
+
     browsers: ['Chrome'],
     preprocessors: {
       './test/**/*.js': ['rollup']
     },
     rollupPreprocessor: {
-      plugins: [alias({
-        core: resolve('src/'),
-        shared: resolve('src/shared')
-      })],
-      // will help to prevent conflicts between different tests entries 
-      format: 'iife',
-      sourceMap: 'inline'
+      plugins: [
+        require('rollup-plugin-buble')(),
+        alias({
+          core: resolve('src/'),
+          shared: resolve('src/shared')
+        })
+      ],
+      output: {
+        format: 'iife',
+        name: 'Vue',
+        sourcemap: 'inline'
+      }
     }
   })
 }
