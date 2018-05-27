@@ -16,23 +16,58 @@ We had a famous equation in declarative data-driven style front-end development:
 
 The render function takes the component state and produce DOM by apply the state with the Virtual DOM tree. So the Virtual DOM is a key infrastructure of declarative UI programming.
 
+### 3.2 How does Vue transform template into Virtual DOM
 
-### 3.2 Virtual DOM and component system
 
-Each virtual DOM node is the abstraction of a real DOM node. But how about a component? 
+
+### 3.3 Virtual DOM and the component system
+
+Each virtual DOM node is an abstraction of a real DOM node. But how about a component? 
 
 In Vuejs, a component has a corresponding virtual DOM node(`VNode` instance), this `VNode` instance is regarded as a placeholder for the component in the Virtual DOM tree. This placeholder `VNode` instance has only one children, the Virtual DOM node corresponding to the component's **root DOM** Node.
 
 *should be a image here to visualize this problem*
 
-### 3.3 `VNode` Class
+### 3.4 `VNode` Class
 
-### 3.4 `create-component` API
+We need to define the structure for the `VNode` Class first. 
+
+*src/vdom/vnode.js*
+
+```
+export default function VNode(tag, data, children, text, elm, context, componentOptions) {
+    this.tag = tag
+    this.data = data
+    this.children = children
+    this.text = text
+    this.elm = elm
+    this.ns = undefined
+    this.context = context
+    this.key = data && data.key
+    this.componentOptions = componentOptions
+    this.componentInstance = undefined
+    this.parent = undefined
+    this.isStatic = false
+    this.isComment = false
+}
+```
+
+Here we define `VNode`'s attributes using a constructor function. A Virtual DOM Node has some DOM-related attributes like tag, text and ns. And it also has Vue component related infomation like componentOptions and componentInstance. 
+
+The children attribute is a pointer pointing to the children of the node, and the parent attribute point to the parent of that node. You know it, Virtual DOM is a tree.
+
+The most useful attribute for a `VNode` is the data attribute. It has all the props, directives, event handlers, class, and styles you defined in your template stored.
+
 
 ### 3.5 `create-element` API
 
-### 3.6 Patching Virtual DOM
+We're gonna implement the famous `h` function in Vue's render function!
 
-### 3.7 Connecting Vue and Virtual DOM
 
-### 3.8 Warp up
+### 3.6 `create-component` API
+
+### 3.7 Patching Virtual DOM
+
+### 3.8 Connecting Vue and Virtual DOM
+
+### 3.9 Warp up
