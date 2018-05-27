@@ -55,10 +55,12 @@ We gotta write a configuration for Rollup to make it work. Under root directory,
 
 ```
 export default {
-  entry: 'src/instance/index.js',
-  format: 'umd',
-  moduleName: 'Vue',
-  dest: 'dist/vue.js' 
+  input: 'src/instance/index.js',
+  output: {
+    name: 'Vue',
+    file: 'dist/vue.js',
+    format: 'iife'
+  },
 };
 ```
 And don't forget to run `npm install rollup rollup-watch --save-dev`.
@@ -69,7 +71,7 @@ Testing will require quite a few packages, run:
 
 ```
 npm install karma jasmine karma-jasmine karma-chrome-launcher
- karma-rollup-plugin --save-dev
+ karma-rollup-plugin karma-rollup-preprocessor buble  rollup-plugin-buble --save-dev
 ```
 
 Under root directory, touch `karma.conf.js`:
@@ -77,17 +79,21 @@ Under root directory, touch `karma.conf.js`:
 ```
 module.exports = function(config) {
   config.set({
+    files: [{ pattern: 'test/**/*.spec.js', watched: false }],
     frameworks: ['jasmine'],
-    files: [
-      './test/**/*.js'
-    ],
     browsers: ['Chrome'],
     preprocessors: {
-     './test/**/*.js': ['rollup']
+      './test/**/*.js': ['rollup']
     },
     rollupPreprocessor: {
-      format: 'iife',
-      sourceMap: 'inline'
+      plugins: [
+        require('rollup-plugin-buble')(),
+      ],
+      output: {
+        format: 'iife',
+        name: 'Vue',
+        sourcemap: 'inline'
+      }
     }
   })
 }
