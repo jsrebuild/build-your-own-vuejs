@@ -20,15 +20,6 @@ export function createElement(
   data,
   children
 ) {
-  return _createElement(context, tag, data, children);
-}
-
-export function _createElement(
-  context,
-  tag,
-  data,
-  children
-) {
   // if (normalizationType === ALWAYS_NORMALIZE) {
   //   children = normalizeChildren(children)
   // } else if (normalizationType === SIMPLE_NORMALIZE) {

@@ -1,5 +1,5 @@
-import Vue from "../../src/index"
-import { createEmptyVNode } from '../../src/vdom/vnode'
+import Vue from "src/index"
+import { createEmptyVNode } from 'src/vdom/vnode'
 
 describe('create-element', () => {
   it('render vnode with basic reserved tag using createElement', () => {

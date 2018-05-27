@@ -16,6 +16,7 @@ module.exports = function(config) {
         require('rollup-plugin-buble')(),
         alias({
           core: resolve('src/'),
+          src: resolve('src/'),
           shared: resolve('src/shared')
         })
       ],
