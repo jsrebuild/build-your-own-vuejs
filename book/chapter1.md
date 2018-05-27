@@ -135,7 +135,7 @@ To bootstrap our own Vuejs, let's write our first test case.
 *test/options/options.spec.js*
 
 ```
-import Vue from "../src/instance/index";
+import Vue from "../../src/instance/index";
 
 describe('Proxy test', function() {
   it('should proxy vm._data.a = vm.a', function() {
