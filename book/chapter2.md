@@ -11,13 +11,13 @@ And each `Vue` instance has a `Watcher` instance which records any properties â€
 
 So how do observer notify watcher for data change? Observer pattern to the rescue! We define a new class called `Dep`, which means "Dependence", to serve as a mediator. Observer instance has a reference for all the deps it needs to notify when data changes. And each dep instance knows which watcher it needs to update. 
 
-That's basically how the reactivity system works from a 100,000 feet view. In the next few sections, we'll have a closer look at the implementation details of the reactivity system.
+That's basically how the reactivity system works from a 10,000 feet view. In the next few sections, we'll have a closer look at the implementation details of the reactivity system.
 
 
 
 ### 2.1 Dep
 
-The implemetation of `Dep` is stratforwd. Each dep instance has a uid to for identification. The `subs` array records all watchers subscribe to this dep instance. `Dep.prototype.notify` call each subscribers' update method in `subs` array. `Dep.prototype.depend` is used for dependency collecttion during watcher's re-evaluation. We'll come to watchers later. For now you should only konw that `Dep.target` is the watcher instance being re-evaluated at the moment. Since this property is a static, so `Dep.target` works globally and points to one watcher at a time.
+The implemetation of `Dep` is straight forward. Each dep instance has a uid to for identification. The `subs` array records all watchers subscribe to this dep instance. `Dep.prototype.notify` call each subscribers' update method in `subs` array. `Dep.prototype.depend` is used for dependency collecttion during watcher's re-evaluation. We'll come to watchers later. For now you should only konw that `Dep.target` is the watcher instance being re-evaluated at the moment. Since this property is a static, so `Dep.target` works globally and points to one watcher at a time.
 
 *src/observer/dep.js*
 
